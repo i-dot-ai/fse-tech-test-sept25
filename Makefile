@@ -13,7 +13,7 @@ dev: run
 
 # Setup project (install dependencies and create .env if it doesn't exist)
 setup: install
-	@if [ ! -f expenses_tracker/.env ]; then cp expenses_tracker/.env.example expenses_tracker/.env && echo "Created .env file - please add your OpenAI API key"; fi
+	@if [ ! -f .env ]; then cp .env.example .env && echo "Created .env file - please add your OpenAI API key"; fi
 
 # Clean up generated files
 clean:
