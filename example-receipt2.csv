@@ -1,0 +1,14 @@
+Store,Date,Time,Item,Quantity,Unit_Price,Total_Price,Subtotal,VAT,Grand_Total,Payment_Method
+CURRYS PC WORLD,20/03/2024,15:45,Wireless Headphones,1,£66.99,£66.99,£85.39,£17.08,£102.47,Chip & PIN
+CURRYS PC WORLD,20/03/2024,15:45,USB-C Cable,2,£10.83,£21.66,£85.39,£17.08,£102.47,Chip & PIN
+CURRYS PC WORLD,20/03/2024,15:45,iPhone Case,1,£20.83,£20.83,£85.39,£17.08,£102.47,Chip & PIN
+
+Receipt Details:
+Store Address: 42 Oxford Street
+City: Manchester
+County: Greater Manchester
+Postcode: M1 5AN
+Phone: 0161 834 5678
+Receipt Number: CPC789012345
+Till Operator: Oliver
+VAT Rate: 20%

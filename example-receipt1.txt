@@ -1,0 +1,30 @@
+PRET A MANGER
+Store #42
+123 High Street
+London, SW1A 1AA
+Phone: 020 7946 0958
+
+Date: 15/03/2024
+Time: 09:30
+Till Operator: Sophie
+
+RECEIPT
+--------
+1 Flat White           £3.75
+1 Cheddar & Pickle Bap  £4.25
+1 Ready Salted Crisps   £1.15
+
+Subtotal:              £9.15
+VAT (20%):             £1.83
+--------
+TOTAL:                 £10.98
+
+Payment Method: Contactless
+Card: ****5678
+Auth Code: 456789
+
+Cheers for choosing Pret!
+Have a lovely day!
+
+Manager: James Thornton
+Receipt #: PT789456123

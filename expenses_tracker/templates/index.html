@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Receipt Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .upload-form { border: 2px dashed #ccc; padding: 40px; text-align: center; margin: 20px 0; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .flash { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .flash.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .flash.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Receipt Tracker</h1>
+        <p>Upload receipt images or PDFs to extract and store expense information.</p>
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash success">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="post" action="/upload" enctype="multipart/form-data" class="upload-form">
+            <h3>Upload Receipt</h3>
+            <input type="email" name="email" placeholder="Your email address" required>
+            <br><br>
+            <input type="file" name="file" accept="image/*,.pdf,.txt,.csv" required>
+            <br><br>
+            <button type="submit">Upload and Process</button>
+        </form>
+        
+        <p><a href="/receipts">View All Receipts</a></p>
+    </div>
+</body>
+</html>

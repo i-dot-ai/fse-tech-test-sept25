@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>30-Day Expense Summary - Receipt Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .summary-card { border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px; background: #f9f9f9; }
+        .totals { display: flex; gap: 20px; margin: 20px 0; }
+        .total-item { flex: 1; padding: 15px; background: white; border-radius: 6px; text-align: center; }
+        .total-with-tax { border-left: 4px solid #dc3545; }
+        .total-without-tax { border-left: 4px solid #28a745; }
+        .total-tax { border-left: 4px solid #ffc107; }
+        .amount { font-size: 24px; font-weight: bold; margin: 10px 0; }
+        .label { color: #666; font-size: 14px; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .summary-text { background: white; padding: 15px; border-radius: 6px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>30-Day Expense Summary</h1>
+        <p><a href="/receipts?email={{ email }}">&larr; Back to Receipts</a></p>
+        
+        <div class="summary-card">
+            <h3>Summary for {{ email }}</h3>
+            <p>Based on {{ receipt_count }} receipts from the last 30 days</p>
+            
+            <div class="totals">
+                <div class="total-item total-with-tax">
+                    <div class="label">Total with Tax/VAT</div>
+                    <div class="amount">${{ "%.2f"|format(summary.total_with_tax or 0) }}</div>
+                </div>
+                
+                <div class="total-item total-without-tax">
+                    <div class="label">Total without Tax/VAT</div>
+                    <div class="amount">${{ "%.2f"|format(summary.total_without_tax or 0) }}</div>
+                </div>
+                
+                <div class="total-item total-tax">
+                    <div class="label">Total Tax/VAT</div>
+                    <div class="amount">${{ "%.2f"|format(summary.total_tax or 0) }}</div>
+                </div>
+            </div>
+            
+            {% if summary.summary_text %}
+            <div class="summary-text">
+                <h4>Spending Analysis</h4>
+                <p>{{ summary.summary_text }}</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <p><a href="/receipts?email={{ email }}">View All Receipts</a> | <a href="/">Upload New Receipt</a></p>
+    </div>
+</body>
+</html>
