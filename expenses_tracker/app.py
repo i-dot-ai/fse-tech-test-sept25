@@ -7,8 +7,6 @@ from werkzeug.utils import secure_filename
 from markitdown import MarkItDown
 from openai import OpenAI
 from dotenv import load_dotenv
-from pydantic import BaseModel
-from typing import Optional
 from datetime import datetime, timedelta
 
 load_dotenv()
@@ -27,20 +25,6 @@ client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 # Initialize MarkItDown
 markitdown = MarkItDown()
 
-class ReceiptInfo(BaseModel):
-    total: Optional[float] = None
-    tax: Optional[float] = None
-    currency: Optional[str] = None
-    vendor: Optional[str] = None
-    date: Optional[str] = None
-    expense_code: Optional[str] = None
-
-class ExpenseSummary(BaseModel):
-    total_with_tax: Optional[float] = None
-    total_without_tax: Optional[float] = None
-    total_tax: Optional[float] = None
-    receipt_count: Optional[int] = None
-    summary_text: Optional[str] = None
 
 def init_db():
     conn = sqlite3.connect('receipts.db')
@@ -66,7 +50,7 @@ def init_db():
 
 def extract_receipt_info(text):
     prompt = f"""
-    Extract the following information from this receipt text:
+    Extract the following information from this receipt text and return as JSON:
     - Total amount (just the number)
     - Tax/VAT amount (just the number)  
     - Currency (e.g., USD, EUR, GBP)
@@ -78,37 +62,48 @@ def extract_receipt_info(text):
       * APPROVED
       * OTHER - for anything else that doesn't fit the above
 
+    Return the information in this exact JSON format:
+    {{
+        "total": number_or_null,
+        "tax": number_or_null,
+        "currency": "string_or_null",
+        "vendor": "string_or_null",
+        "date": "string_or_null",
+        "expense_code": "string_or_null"
+    }}
+
     Receipt text:
     {text}
     """
     
     try:
-        completion = client.beta.chat.completions.parse(
+        response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
-            response_format=ReceiptInfo,
+            response_format={"type": "json_object"},
             temperature=0
         )
         
-        receipt_info = completion.choices[0].message.parsed
-        print(f"Extracted info: {receipt_info}")
+        ai_response = response.choices[0].message.content
+        print(f"AI response: {ai_response}")
+        parsed_info = json.loads(ai_response)
         
         return {
-            "total": receipt_info.total,
-            "tax": receipt_info.tax,
-            "currency": receipt_info.currency,
-            "vendor": receipt_info.vendor,
-            "date": receipt_info.date,
-            "expense_code": receipt_info.expense_code
+            "total": parsed_info.get("total"),
+            "tax": parsed_info.get("tax"),
+            "currency": parsed_info.get("currency"),
+            "vendor": parsed_info.get("vendor"),
+            "date": parsed_info.get("date"),
+            "expense_code": parsed_info.get("expense_code")
         }
     except Exception as e:
         print(f"AI extraction error: {e}")
-        return {"total": None, "tax": None, "currency": None, "vendor": None, "date": None}
+        return {"total": None, "tax": None, "currency": None, "vendor": None, "date": None, "expense_code": None}
 
 def generate_expense_summary(receipts_data):
     """Use AI to generate a summary of expenses from receipt data"""
     prompt = f"""
-    Analyze the following receipt data and provide a comprehensive expense summary for the last 30 days:
+    Analyze the following receipt data and provide a comprehensive expense summary for the last 30 days.
 
     Receipt Data:
     {receipts_data}
@@ -120,29 +115,46 @@ def generate_expense_summary(receipts_data):
     4. Number of receipts processed
     5. A brief summary of spending patterns (which vendors, categories, etc.)
 
+    Return the information in this exact JSON format:
+    {{
+        "total_with_tax": number,
+        "total_without_tax": number,
+        "total_tax": number,
+        "receipt_count": number,
+        "summary_text": "string describing spending patterns"
+    }}
+
     Make sure to handle different currencies appropriately and provide accurate calculations.
     """
     
     try:
-        completion = client.beta.chat.completions.parse(
+        response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
-            response_format=ExpenseSummary,
+            response_format={"type": "json_object"},
             temperature=0
         )
         
-        summary = completion.choices[0].message.parsed
-        print(f"Generated summary: {summary}")
-        return summary
+        ai_response = response.choices[0].message.content
+        print(f"Generated summary: {ai_response}")
+        parsed_summary = json.loads(ai_response)
+        
+        return {
+            "total_with_tax": parsed_summary.get("total_with_tax", 0.0),
+            "total_without_tax": parsed_summary.get("total_without_tax", 0.0),
+            "total_tax": parsed_summary.get("total_tax", 0.0),
+            "receipt_count": parsed_summary.get("receipt_count", 0),
+            "summary_text": parsed_summary.get("summary_text", "No summary available")
+        }
     except Exception as e:
         print(f"AI summary error: {e}")
-        return ExpenseSummary(
-            total_with_tax=0.0,
-            total_without_tax=0.0, 
-            total_tax=0.0,
-            receipt_count=0,
-            summary_text="Error generating summary"
-        )
+        return {
+            "total_with_tax": 0.0,
+            "total_without_tax": 0.0, 
+            "total_tax": 0.0,
+            "receipt_count": 0,
+            "summary_text": "Error generating summary"
+        }
 
 @app.route('/')
 def index():
